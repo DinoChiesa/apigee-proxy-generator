@@ -12,6 +12,11 @@ of configuration data (you might call it a "profile") to the template files. The
 result is an actual proxy bundle, with all the template fields "filled in" by
 the configuration or profile information.
 
+## Limitations
+
+This works only on Apigee X.  It takes advantage of the GoogleAuthentication
+feature that is available only in Apigee X.
+
 ## Templating via lodash
 
 A simple "template" approach might be to fill in marker fields with values from
