@@ -1,0 +1,27 @@
+ {
+  "proxyname" : "flightdata",
+  "basepath"  : "/flightdata",
+  "projectId" : "infinite-chain-292422",
+  "flows" : [
+    {
+      "name" : "airlines32",
+      "path" : "/airlines32",
+      "query" : "SELECT airline, code FROM [bigquery-samples.airline_ontime_data.airline_id_codes] WHERE airline != 'Description' group by airline, code order by airline limit 32"
+    },
+    {
+      "name" : "airlines100",
+      "path" : "/airlines100",
+      "query" : "SELECT airline, code FROM [bigquery-samples.airline_ontime_data.airline_id_codes] WHERE airline != 'Description' group by airline, code order by airline limit 100"
+    },
+    {
+      "name" : "airlines500",
+      "path" : "/airlines500",
+      "query" : "SELECT airline, code FROM [bigquery-samples.airline_ontime_data.airline_id_codes] WHERE airline != 'Description' group by airline, code order by airline limit 500"
+    },
+    {
+      "name" : "airport-counts",
+      "path" : "/airports/*/counts/*",
+      "query" : "SELECT airline, count(*) AS total_count FROM [bigquery-samples.airline_ontime_data.flights] WHERE departure_airport = '{param1}' AND date = '{param2}' GROUP BY airline"
+    }
+  ]
+}

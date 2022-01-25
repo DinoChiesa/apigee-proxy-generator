@@ -1,0 +1,28 @@
+{
+  "name": "proxy-generator-tools",
+  "version": "1.0.1",
+  "description": "nodejs tool for generating proxies from templates",
+  "main": "genProxyFromTemplate.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Dino Chiesa",
+    "email": "dchiesa@google.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "apigee"
+  ],
+  "dependencies": {
+    "apigee-edge-js": "^0.4.29",
+    "lodash": "^4.17.20",
+    "node-getopt": "^0.3.2",
+    "sprintf-js": "^1.1.2",
+    "tmp-promise": "^3.0.2"
+  },
+  "engines": {
+    "node": ">= 10.15.1",
+    "npm": ">=6.1.0"
+  }
+}
