@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-January-25 10:37:45>
+// last saved: <2022-January-25 14:35:32>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
@@ -134,7 +134,7 @@ function produceBundleZip(sourcePath, templateName) {
 
     walkDirectory(sourcePath, function(e, results) {
       results.forEach(filename => {
-        let shortName = filename.replace(sourcePath, assetType);
+        let shortName = filename.replace(sourcePath, '');
         archive.append(fs.createReadStream(filename), { name: shortName });
       });
       archive.finalize();
