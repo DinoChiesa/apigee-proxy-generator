@@ -15,9 +15,38 @@ the configuration or profile information.
 ## Templating via lodash
 
 A simple "template" approach might be to fill in marker fields with values from
-configuration.  For example, the marker like `{{BASEPATH}}` in a proxy
+configuration.  For example, the marker like `{{= basepath}}` in a proxy
 configuration file could be replaced with the value of the basepath property in
-the configuration. This static replacement is handy but limited.
+the configuration. For example, given this template: 
+
+```
+<ProxyEndpoint name="endpoint1">
+
+  <HTTPProxyConnection>
+    <BasePath>{{= basepath}}</BasePath>
+  </HTTPProxyConnection>
+  ...
+```
+
+And this data: 
+```
+ {
+  "proxyname" : "flightdata",
+  "basepath"  : "/flightdata",
+  ...
+```
+
+The output would be: 
+```
+<ProxyEndpoint name="endpoint1">
+
+  <HTTPProxyConnection>
+    <BasePath>/flightdata</BasePath>
+  </HTTPProxyConnection>
+  ...
+```
+
+This kind of static replacement is handy but limited.
 
 Rather than just use static field replacement, this demonstration uses nodejs
 and the lodash package for templating. This means each file in the API proxy
@@ -35,7 +64,20 @@ For example, a template can include logic that would:
 
 In this example, the tool that applies the template is generic.  The template
 itself and the configuration that gets applied, can vary, for different
-purposes.  There are a few example templates here, but you could write your own.
+purposes. There are a few example templates here, but you could write your
+own. And of course you can write your own configuration data, too.
+
+## Why use a Template? 
+
+Writing a template, and then separating out configuration data from that
+template, is more complicated than just writing the configuration for an API
+proxy, directly.  So why do it? Why go to the trouble?
+
+The reason you'd want to write a template and "genericize" the proxy bundle, is
+if you have a number of different data sources or data sets, and want to produce
+similarly-structured API proxies across those data sets, then you might want to
+use a template for that purpose.
+
 
 ## Example Templates Included here
 
@@ -170,5 +212,6 @@ This example is not an official Google product, nor is it part of an
 official Google product.
 
 
+## Bugs
 
-
+- There's no "generate only" option in the generator tool.  
