@@ -15,16 +15,17 @@ the configuration or profile information.
 ## Templating via lodash
 
 A simple "template" approach might be to fill in marker fields with values from
-configuration.  For example, the marker like {{BASEPATH}} in a proxy
-configuration file would be replaced with the value of the basepath property in
+configuration.  For example, the marker like `{{BASEPATH}}` in a proxy
+configuration file could be replaced with the value of the basepath property in
 the configuration. This static replacement is handy but limited.
 
-Rather than just use static fields for the template, this demonstration uses
-nodejs and the lodash package for templating. This means each file in the API
-proxy bundle "template" can go well beyond  static field replacement to include looping, conditionals, and arbitrary JavaScript logic. 
+Rather than just use static field replacement, this demonstration uses nodejs
+and the lodash package for templating. This means each file in the API proxy
+bundle "template" can go well beyond static field replacement to include
+looping, conditionals, and arbitrary JavaScript logic. This gives much more
+flexibility in what the template can do.
 
-This gives much more flexibility in what the template can do.  For example, a
-template can include logic that would:
+For example, a template can include logic that would:
 
 - loop through a set of "flows" listed in the configuration data
 - emit a unique Flow element in the generated ProxyEndpoint for each one
@@ -34,13 +35,13 @@ template can include logic that would:
 
 In this example, the tool that applies the template is generic.  The template
 itself and the configuration that gets applied, can vary, for different
-purposes.
+purposes.  There are a few example templates here, but you could write your own.
 
 ## Example Templates Included here
 
 There are two templates included here: 
 
-1. BigQuery Facade Proxy
+1. *BigQuery Facade Proxy*
 
    This is a simple facade proxy for queries against BigQuery. 
    The generated proxy
@@ -51,7 +52,7 @@ There are two templates included here:
    simple facade proxies against different BQ datasets, with specific, 
    possibly parameterized queries for each one. 
 
-2. BigQuery Rate Limiting Proxy
+2. *BigQuery Rate Limiting Proxy*
 
    This is an extension of the above. The basic idea is the same: it's a facade
    for curated BQ queries. But, this one uses the Apigee builtin Quota policy,
@@ -64,6 +65,9 @@ There are two templates included here:
    In a real system, that should be replaced with an Application ID, or Partner
    ID, etc, as appropriate.
 
+
+You could create other proxy templates. The templates you create don't need to
+point to BigQuery.
 
 ## Using the examples
 
@@ -101,7 +105,7 @@ You need a recent version of node and npm to run this tool.
      --apigeex \
      --org $ORG \
      --env $ENV \
-     -d ../templates/bq-simple-proxy-template \
+     --source ../templates/bq-simple-proxy-template \
      --config ../data/config-bq-flights.json \
      --serviceaccount $SVCACCT \
    ```
@@ -128,7 +132,7 @@ node ./genProxyFromTemplate.js -v \
   --apigeex \
   --org $ORG \
   --env $ENV \
-  -d ../templates/bq-rate-limiting-proxy-template \
+  --source ../templates/bq-rate-limiting-proxy-template \
   --config ../data/config-bq-flights.json \
   --serviceaccount $SVCACCT \
 ```
