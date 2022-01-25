@@ -48,11 +48,12 @@ The output would be:
 
 This kind of static replacement is handy but limited.
 
-Rather than just use static field replacement, this demonstration uses nodejs
-and the lodash package for templating. This means each file in the API proxy
-bundle "template" can go well beyond static field replacement to include
-looping, conditionals, and arbitrary JavaScript logic. This gives much more
-flexibility in what the template can do.
+Rather than just use static field replacement, this demonstration uses
+[nodejs](https://nodejs.org/en/) and the
+[lodash](https://lodash.com/docs/4.17.15#template) package for templating. This
+means each file in the API proxy bundle "template" can go well beyond static
+field replacement to include looping, conditionals, and arbitrary JavaScript
+logic. This gives much more flexibility in what the template can do.
 
 For example, a template can include logic that would:
 
@@ -76,7 +77,7 @@ proxy, directly.  So why do it? Why go to the trouble?
 The reason you'd want to write a template and "genericize" the proxy bundle, is
 if you have a number of different data sources or data sets, and want to produce
 similarly-structured API proxies across those data sets, then you might want to
-use a template for that purpose.
+take the extra effort to construct a template to support that purpose.
 
 
 ## Example Templates Included here
@@ -85,10 +86,9 @@ There are two templates included here:
 
 1. *BigQuery Facade Proxy*
 
-   This is a simple facade proxy for queries against BigQuery. 
-   The generated proxy
-   exposes a curated set of queries against BQ, each one as a different
-   flow in the proxy endpoint. The target is bigquery.googleapis.com . 
+   This is a simple facade proxy for queries against BigQuery.  The generated
+   proxy exposes a curated set of queries against BQ, each one as a different
+   flow in the proxy endpoint. The target is bigquery.googleapis.com .
 
    This example shows how you can generate numerous different 
    simple facade proxies against different BQ datasets, with specific, 
@@ -125,7 +125,9 @@ You need a recent version of node and npm to run this tool.
    You do not need to create or download a service-account key. 
    (This works only against Apigee X)
    
-   You can use the console.cloud.google.com UI , or the gcloud tool, to do this. 
+   You can use the [GCP cloud console UI](https://console.cloud.google.com), or
+   the [gcloud command-line tool](https://cloud.google.com/sdk/gcloud), to do
+   this.
    
    
 2. Generate a proxy, and import & deploy it.   
