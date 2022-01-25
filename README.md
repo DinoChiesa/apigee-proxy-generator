@@ -190,6 +190,11 @@ curl -i -H account-num:A1234567 $endpoint/flightdata/airports/LGA/counts/2010-02
 curl -i -H account-num:A1234567 $endpoint/flightdata/airports/EWR/counts/2010-02-14
 ```
 
+For those last two queries, you can see the URL path includes parameters. The first
+positional param is a 3-letetr airport code. Try LGA, EWR, SEA, SJC, SFO, and so
+on.  The latter field is a date. This flight data is old, so you can use dates
+in the 2008-2011 range, I think. The format is YYYY-MM-DD.
+
 If you invoke enough unique queries, you will see a 429 response when the Quota
 is exceeded. BQ will respond from cache when you send the same query repeatedly, 
 and those requests do not result in decrementing from the Quota count. 
@@ -228,3 +233,4 @@ official Google product.
 
 ## Bugs
 
+- ??
