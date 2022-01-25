@@ -194,7 +194,21 @@ If you invoke enough unique queries, you will see a 429 response when the Quota
 is exceeded. BQ will respond from cache when you send the same query repeatedly, 
 and those requests do not result in decrementing from the Quota count. 
 
-## Extending this
+## Generate only
+
+To only generate the proxy, without importing and deploying it, specify the `--generateonly` option: 
+
+```sh
+node ./genProxyFromTemplate.js \
+    --generateonly \
+    --source ../templates/bq-simple-proxy-template \
+    --config ../data/config-bq-flights.json 
+```
+
+The result will be an API Proxy bundle zip. 
+
+
+## Extending This Demonstration
 
 You can build your own proxy templates.  They do not need to connect to
 BigQuery. Use your imagination!
@@ -214,4 +228,3 @@ official Google product.
 
 ## Bugs
 
-- There's no "generate only" option in the generator tool.  

@@ -13,15 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-January-25 08:58:27>
+// last saved: <2022-January-25 10:37:45>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
 // ------------------------------------------------------------------
-// generate a new proxy from a template and import it into Apigee.
+//
+// generate a new proxy from a template and optionally import it into Apigee,
+// and optionally deploy it.
 //
 
 const apigeejs   = require('apigee-edge-js'),
+      archiver   = require('archiver'),
       lodash     = require('lodash'),
       Getopt     = require('node-getopt'),
       sprintf    = require('sprintf-js').sprintf,
@@ -31,10 +34,11 @@ const apigeejs   = require('apigee-edge-js'),
       path       = require('path'),
       common     = apigeejs.utility,
       apigee     = apigeejs.apigee,
-      version    = '20220124-1118',
+      version    = '20220125-1014',
       getopt     = new Getopt(common.commonOptions.concat([
         ['d' , 'source=ARG', 'required. source directory for the proxy template files. This should have a child dir "apiproxy" or "sharedflowbundle"'],
         ['e' , 'env=ARG', 'optional. the Apigee environment(s) to which to deploy the asset. Separate multiple environments with a comma.'],
+        ['' , 'generateonly', 'optional. tells the tooll to just generate the proxy, don\'t import or deploy.'],
         ['' , 'config=ARG', 'required. the configuration data for the template.'],
         ['' , 'serviceaccount=ARG', 'required. the service account to use at deployment time.']
       ])).bindHelp();
@@ -87,6 +91,57 @@ const getTemplateApplier = (config) => (sourceFilename) => {
         }
       };
 
+function walkDirectory(dir, done) {
+  let results = [];
+  fs.readdir(dir, function(err, list) {
+    if (err) return done(err);
+    var i = 0;
+    (function next() {
+      var file = list[i++];
+      if (!file) return done(null, results);
+      file = dir + '/' + file;
+      fs.stat(file, function(err, stat) {
+        if (stat && stat.isDirectory()) {
+          walkDirectory(file, function(err, res) {
+            results = results.concat(res);
+            next();
+          });
+        } else {
+          results.push(file);
+          next();
+        }
+      });
+    })();
+  });
+}
+
+function produceBundleZip(sourcePath, templateName) {
+  let assetType = 'apiproxy';
+
+  return new Promise( (resolve, reject) => {
+  let time = (new Date()).toString(),
+      tstr = time.substr(11, 4) +
+      time.substr(4, 3) + time.substr(8, 2) + 'T' +
+      time.substr(16, 8).replace(/:/g, ''),
+      archiveName = path.join('./', `${assetType}-${templateName}-${tstr}.zip`),
+      outs = fs.createWriteStream(archiveName),
+      archive = archiver('zip');
+
+    outs.on('close', () => resolve(archiveName));
+
+    archive.on('error', (e) => reject({error:e, archiveName}));
+    archive.pipe(outs);
+
+    walkDirectory(sourcePath, function(e, results) {
+      results.forEach(filename => {
+        let shortName = filename.replace(sourcePath, assetType);
+        archive.append(fs.createReadStream(filename), { name: shortName });
+      });
+      archive.finalize();
+    });
+  });
+}
+
 // ========================================================
 
 console.log(
@@ -99,25 +154,6 @@ common.logWrite('start');
 
 var opt = getopt.parse(process.argv.slice(2));
 
-common.verifyCommonRequiredParameters(opt.options, getopt);
-
-if ( !opt.options.source ) {
-  console.log('You must specify a source directory');
-  getopt.showHelp();
-  process.exit(1);
-}
-if ( !opt.options.serviceaccount ) {
-  console.log('You must specify a service account ID.');
-  getopt.showHelp();
-  process.exit(1);
-}
-
-if ( !opt.options.config ) {
-  console.log('You must specify a configuration file.');
-  getopt.showHelp();
-  process.exit(1);
-}
-
 config = require(opt.options.config); // array of key/value pairs
 
 if ( ! config.proxyname || !config.basepath /* ... */) {
@@ -126,34 +162,61 @@ if ( ! config.proxyname || !config.basepath /* ... */) {
   process.exit(1);
 }
 
-apigee
-  .connect(common.optToOptions(opt))
-  .then( org => {
-    common.logWrite('connected');
-    return tmp.dir({unsafeCleanup:true}).then(d => {
-      // copy the template dir, and then apply the config data to the template
-      copyRecursiveSync(opt.options.source, d.path, getTemplateApplier(config));
-      common.logWrite('importing the generated proxy bundle');
+return tmp.dir({unsafeCleanup:true})
+  .then(d => {
+    // copy the template dir, and then apply the config data to the template
+    copyRecursiveSync(opt.options.source, d.path, getTemplateApplier(config));
+    if (opt.options.generateonly) {
+      // d.path is the path of the generated proxy
+      return produceBundleZip(d.path, path.basename(opt.options.source).replace('-template', ''))
+        .then(a => common.logWrite(`generated: ${a}`));
+    }
 
-      return org.proxies.import({name:config.proxyname, source: d.path})
-        .then( result => {
-          common.logWrite(sprintf('import ok. proxy name: %s r%d', result.name, result.revision));
-          let env = opt.options.env || process.env.ENV;
-          if (env) {
-            let deployOptions = {
-                  name: result.name,
-                  revision: result.revision,
-                  serviceAccount: opt.options.serviceaccount,
-                  environment:env
-                };
-            return org.proxies
-              .deploy(deployOptions)
-              .then( result => common.logWrite('deployment ' + (result.error ? ('failed: ' + JSON.stringify(result)) : 'ok.')))
-              .then( () => common.logWrite('all done.') );
-          }
-          common.logWrite('finished (not deploying)');
-          return Promise.resolve(true);
-        });
-    });
+    common.verifyCommonRequiredParameters(opt.options, getopt);
+
+    if ( !opt.options.source ) {
+      console.log('You must specify a source directory');
+      getopt.showHelp();
+      process.exit(1);
+    }
+
+    if ( !opt.options.serviceaccount ) {
+      console.log('You must specify a service account ID.');
+      getopt.showHelp();
+      process.exit(1);
+    }
+
+    if ( !opt.options.config ) {
+      console.log('You must specify a configuration file.');
+      getopt.showHelp();
+      process.exit(1);
+    }
+
+    return apigee
+      .connect(common.optToOptions(opt))
+      .then( org => {
+        common.logWrite('connected');
+        common.logWrite('importing the generated proxy bundle');
+
+        return org.proxies.import({name:config.proxyname, source: d.path})
+          .then( result => {
+            common.logWrite(sprintf('import ok. proxy name: %s r%d', result.name, result.revision));
+            let env = opt.options.env || process.env.ENV;
+            if (env) {
+              let deployOptions = {
+                    name: result.name,
+                    revision: result.revision,
+                    serviceAccount: opt.options.serviceaccount,
+                    environment:env
+                  };
+              return org.proxies
+                .deploy(deployOptions)
+                .then( result => common.logWrite('deployment ' + (result.error ? ('failed: ' + JSON.stringify(result)) : 'ok.')))
+                .then( () => common.logWrite('all done.') );
+            }
+            common.logWrite('finished (not deploying)');
+            return Promise.resolve(true);
+          });
+      });
   })
   .catch( e => console.log('while executing, error: ' + util.format(e)) );
