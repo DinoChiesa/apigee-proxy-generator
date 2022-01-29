@@ -14,6 +14,7 @@ if (Number(c.totalRows) >0) {
   c.rows = rows;
 }
 delete c.kind;
+delete c.schema;
 delete c.jobReference;
 context.setVariable('response.content', JSON.stringify(c,null,2)+'\n');
 ]]>

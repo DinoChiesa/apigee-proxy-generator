@@ -1,0 +1,12 @@
+{
+  "proxyname" : "openimages",
+  "basepath"  : "/openimages",
+  "projectId" : "infinite-chain-292422",
+  "flows" : [
+    {
+      "name" : "images-by-keyword",
+      "path" : "/images-by-keyword/*",
+      "query" : "SELECT original_url, title FROM [bigquery-public-data.open_images.images] where title like '%{param1}%' LIMIT 50"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "proxyname" : "covid19",
+  "basepath"  : "/covid19",
+  "projectId" : "infinite-chain-292422",
+  "flows" : [
+    {
+      "name" : "current-death-counts-by-country",
+      "path" : "/deaths-by-country/*",
+      "query" : "SELECT * FROM [bigquery-public-data.covid19_jhu_csse.deaths] where country_region = '{param1}' and province_state is null LIMIT 1000"
+    },
+    {
+      "name" : "cumulative-deaths-by-us-state",
+      "path" : "/us-deaths/*",
+      "query" : "SELECT state_name, deaths FROM [bigquery-public-data.covid19_nyt.us_states] where date = '{param1}' order by deaths desc LIMIT 1000"
+    }
+  ]
+}
