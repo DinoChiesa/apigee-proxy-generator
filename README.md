@@ -185,7 +185,8 @@ There are four top-level properties. All should be self-explanatory.
 In this configuration, there is just one element within the flows array property. It defines the 
 information needed for a specific conditional flow, including the path pattern, and the query. 
 
-You could add more flows by inserting additional elements with distinct queries and path patterns. 
+You could add more flows by inserting additional elements with distinct queries and path patterns. The other
+configurations included here have more flows. 
 
 ## Using the example tool
 
