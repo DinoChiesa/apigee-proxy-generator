@@ -95,7 +95,7 @@ are a few example templates here, and a few different configurations.  But these
 are intended to be illustrations. You could write your own templates and your
 own configuration data, too.
 
-I hope you will be able to re-use the tool and the technique. 
+I hope you will be able to re-use the tool and the technique.
 
 ## Why use a Template?
 
@@ -143,29 +143,30 @@ There are two templates [included here](./templates):
 
    This example uses an `account-num` request header as the Quota identifier.
    In a real system, that should be replaced with an Application ID, or Partner
-   ID, etc, as appropriate.
+   ID, etc, as appropriate. That identifier would be derived from the app
+   credential (token or key).
 
 You could create other proxy templates. The templates you create don't need to
 point to BigQuery.
 
-## Example Configuration Data 
+## Example Configuration Data
 
-There are 3 distinct configurations here: 
+There are 3 distinct configurations here:
 
 1. [**flights**](./data/config-bq-flights.json)
 
-   Queries the airline flights sample dataset in BQ. 
-   
+   Queries the airline flights sample dataset in BQ.
+
 2. [**open-images**](./data/config-bq-open-images.json)
 
-   Queries the open images public dataset in BQ. 
-   
+   Queries the open images public dataset in BQ.
+
 3. [**covid19**](./data/config-bq-covid19.json)
 
-   Queries two different public datasets in BQ related to Covid19. 
+   Queries two different public datasets in BQ related to Covid19.
 
 
-Have a look at the open-images configuration. It's quite simple: 
+Have a look at the open-images configuration. It's quite simple:
 ```json
 {
   "proxyname" : "openimages",
@@ -181,20 +182,20 @@ Have a look at the open-images configuration. It's quite simple:
 }
 ```
 
-There are four top-level properties. All should be self-explanatory. 
-In this configuration, there is just one element within the flows array property. It defines the 
-information needed for a specific conditional flow, including the path pattern, and the query. 
+There are four top-level properties. All should be self-explanatory.
+In this configuration, there is just one element within the flows array property. It defines the
+information needed for a specific conditional flow, including the path pattern, and the query.
 
 You could add more flows by inserting additional elements with distinct queries and path patterns. The other
-configurations included here have more flows. 
+configurations included here have more flows.
 
 ## Using the example tool
 
-The [proxy generator tool](./tools/genProxyFromTemplate.js) included here does these things: 
+The [proxy generator tool](./tools/genProxyFromTemplate.js) included here does these things:
 
-- generates the templatized proxy, by combining a template against a specific configuration. 
+- generates the templatized proxy, by combining a template against a specific configuration.
 
-- import & deploy the proxy, to the given organization + environment, with the specified service account. 
+- import & deploy the proxy, to the given organization + environment, with the specified service account.
 
 
 You'll need a recent version of node and npm to run this tool.
@@ -206,7 +207,7 @@ You'll need a recent version of node and npm to run this tool.
 
    You do not need to create or download a service-account key.
    **NB**: This example works only against Apigee X, and depends on a feature particular
-   to Apigee X. 
+   to Apigee X.
 
    You can use the [GCP cloud console UI](https://console.cloud.google.com), or
    the [gcloud command-line tool](https://cloud.google.com/sdk/gcloud), to do
@@ -236,7 +237,7 @@ You'll need a recent version of node and npm to run this tool.
      --env $ENV \
      --source ../templates/bq-simple-proxy-template \
      --config ../data/config-bq-flights.json \
-     --serviceaccount $SVCACCT 
+     --serviceaccount $SVCACCT
    ```
 
    Note: if you do not specify the `--env` option, the tool will import the
@@ -263,7 +264,7 @@ node ./genProxyFromTemplate.js -v \
   --env $ENV \
   --source ../templates/bq-rate-limiting-proxy-template \
   --config ../data/config-bq-flights.json \
-  --serviceaccount $SVCACCT 
+  --serviceaccount $SVCACCT
 ```
 
 The rate limiting is hard-coded to 5000 "totalSlotMs units" per hour.
@@ -278,7 +279,7 @@ curl -i -H account-num:A1234567 $endpoint/flightdata/airports/EWR/counts/2010-02
 ```
 
 For those last two queries, you can see the URL path includes parameters. The first
-positional param is a 3-letetr airport code. Try LGA, EWR, SEA, SJC, SFO, and so
+positional param is a 3-letter airport code. Try LGA, EWR, SEA, SJC, SFO, and so
 on.  The latter field is a date. This flight data is old, so you can use dates
 in the 2008-2011 range, I think. The format is YYYY-MM-DD.
 

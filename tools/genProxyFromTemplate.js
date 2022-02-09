@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-January-25 14:35:32>
+// last saved: <2022-February-08 17:48:27>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
@@ -162,7 +162,7 @@ if ( ! config.proxyname || !config.basepath /* ... */) {
   process.exit(1);
 }
 
-return tmp.dir({unsafeCleanup:true})
+return tmp.dir({unsafeCleanup:true, prefix: 'genproxy'})
   .then(d => {
     // copy the template dir, and then apply the config data to the template
     copyRecursiveSync(opt.options.source, d.path, getTemplateApplier(config));
@@ -177,19 +177,19 @@ return tmp.dir({unsafeCleanup:true})
     if ( !opt.options.source ) {
       console.log('You must specify a source directory');
       getopt.showHelp();
-      process.exit(1);
+      return Promise.resolve(1);
     }
 
     if ( !opt.options.serviceaccount ) {
       console.log('You must specify a service account ID.');
       getopt.showHelp();
-      process.exit(1);
+      return Promise.resolve(1);
     }
 
     if ( !opt.options.config ) {
       console.log('You must specify a configuration file.');
       getopt.showHelp();
-      process.exit(1);
+      return Promise.resolve(1);
     }
 
     return apigee
@@ -217,6 +217,7 @@ return tmp.dir({unsafeCleanup:true})
             common.logWrite('finished (not deploying)');
             return Promise.resolve(true);
           });
-      });
+      })
+      .then(() => d.cleanup() );
   })
   .catch( e => console.log('while executing, error: ' + util.format(e)) );
