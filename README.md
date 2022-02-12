@@ -14,15 +14,42 @@ the configuration or profile information.
 
 ## What Good is This?
 
-A good application of this idea is exposing a curated set of BigQuery queries,
-via an API Proxy, protected by an application credential like an API key or an
-OAuth token. But this approach can be useful in lots of other cases.
+A good application of this idea is easily exposing a curated set of BigQuery queries,
+via an API Proxy, possibly protected by an application credential like an API key or an
+OAuth token.
+
+For example, you could write a data file that includes a few parameterized queries, like this:
+```json
+{
+  "proxyname" : "flightdata",
+  "basepath"  : "/flightdata",
+  "projectId" : "my-project-id",
+  "flows" : [
+    {
+      "name" : "airlines500",
+      "path" : "/airlines500",
+      "query" : "SELECT airline, code FROM [bigquery-samples.airline_ontime_data.airline_id_codes] WHERE airline != 'Description' group by airline, code order by airline limit 500"
+    },
+    {
+      "name" : "airport-counts",
+      "path" : "/airports/*/counts/*",
+      "query" : "SELECT airline, count(*) AS total_count FROM [bigquery-samples.airline_ontime_data.flights] WHERE departure_airport = '{param1}' AND date = '{param2}' GROUP BY airline"
+    }
+  ]
+}
+```
+
+...and then run that file through a tool, which generates an API proxy that
+exposes THOSE particular queries via an Apigee-hosted API.
+
+But this approach can be useful in lots of other cases.
+
 
 ## Limitations
 
 Some of the templates in this repo - for example the templates that connect to
 BigQuery - take advantage of the GoogleAuthentication feature that is available
-only in Apigee X.  The basic concept can work with Apigee hybrid or Edge. 
+only in Apigee X.  The basic concept can work with Apigee hybrid or Edge.
 
 ## Generating Proxies via Templates
 
@@ -106,9 +133,9 @@ I hope you will be able to re-use the tool and the technique.
 
 ## Why use a Template?
 
-Writing a template, and then separating out configuration data from that
-template, is more complicated than just writing the configuration for an API
-proxy, directly. So why do it? Why go to the trouble?
+Writing a template, and then separating out configuration data (like the BQ
+queries) from that template, is more complicated than just writing the
+configuration for an API proxy, directly. So why do it? Why go to the trouble?
 
 A couple reasons you'd want to write a template and "genericize" the proxy bundle:
 
@@ -152,6 +179,19 @@ There are two templates [included here](./templates):
    In a real system, that should be replaced with an Application ID, or Partner
    ID, etc, as appropriate. That identifier would be derived from the app
    credential (token or key).
+
+3. [**BigQuery APIKey Proxy**](./templates/bq-apikey-proxy-template)
+
+   Here, this is a facade
+   for curated BQ queries. But, it also verifies an API Key presented in the
+   `X-APIKey` header. This proxy performs no rate limiting.
+
+4. [**BigQuery APIKey Rate Limiting Proxy**](./templates/bq-apikey-rate-limiting-proxy-template)
+
+   This one is a combination of #2 and #3 above: it performs API Key verification,
+   and also performs rate limiting.
+
+
 
 You could create other proxy templates. The templates you create don't need to
 point to BigQuery.
@@ -293,6 +333,21 @@ in the 2008-2011 range, I think. The format is YYYY-MM-DD.
 If you invoke enough _unique_ queries, you will see a 429 response when the Quota
 is exceeded. BQ will respond from cache when you send the same query repeatedly,
 and those requests do not result in decrementing from the Quota count.
+
+## For the proxy that checks API Keys
+
+There are two templates that check APIKeys. One does rate limiting and one does
+not.  For either of these, you need to pass the `X-APIKey` header, in place of
+the `account-num` header. That API Key needs to be a real APIKey provisioned in
+Apigee. The API Product should include the appropriate proxy (like flightdata,
+etc).
+
+Once the proxy is imported and deployed, invoke it like this:
+
+```sh
+curl -i -H x-apikey:$APIKEY_HERE $endpoint/flightdata/airports/LGA/counts/2010-02-14
+curl -i -H x-apikey:$APIKEY_HERE $endpoint/flightdata/airports/EWR/counts/2010-02-14
+```
 
 ## Generate only
 
