@@ -151,6 +151,27 @@ A couple reasons you'd want to write a template and "genericize" the proxy bundl
 In either of these cases, you might want to take the extra effort
 to employ templates for your API proxy generation.
 
+## When would you NOT want to use this generator?
+
+Don't use this generator if you don't want to expose a limited, "curated" set of
+queries. In other words, if you want the client to continue to use the full
+interface for the upstream API (like BigQuery, etc)....  with all of the
+combinations of {verb, payload, headers, path} that are supported by that
+upstream system, then you can do that with Apigee, but you don't need this
+generator tool to support that effort.
+
+It's actually much simpler.
+
+Suppose you want to expose BigQuery to a client, and all you want to do is
+inject APIKey verificiation.  For that, you would just configure the Apigee
+proxy to act a "passthrough proxy", meaning it would not manipulate the verb or
+path or payload at all.
+
+All the Apigee proxy would do is:
+1. verify the API key,
+2. remove the API key header,
+3. invoke the BQ Rest API with whatever verb and headers and payload the client passed to Apigee.
+
 
 ## Example Templates Included here
 
