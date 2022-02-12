@@ -12,10 +12,17 @@ of configuration data (you might call it a "profile") to the template files. The
 result is an actual proxy bundle, with all the template fields "filled in" by
 the configuration or profile information.
 
+## What Good is This?
+
+A good application of this idea is exposing a curated set of BigQuery queries,
+via an API Proxy, protected by an application credential like an API key or an
+OAuth token. But this approach can be useful in lots of other cases.
+
 ## Limitations
 
-This works only on Apigee X. It takes advantage of the GoogleAuthentication
-feature that is available only in Apigee X.
+Some of the templates in this repo - for example the templates that connect to
+BigQuery - take advantage of the GoogleAuthentication feature that is available
+only in Apigee X.  The basic concept can work with Apigee hybrid or Edge. 
 
 ## Generating Proxies via Templates
 
@@ -319,7 +326,7 @@ official Google product.
 
 ## Author
 
-Dino Chiesa  
+Dino Chiesa
 godino@google.com
 
 ## Bugs
