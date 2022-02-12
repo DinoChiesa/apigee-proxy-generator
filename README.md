@@ -314,7 +314,10 @@ node ./genProxyFromTemplate.js -v \
   --serviceaccount $SVCACCT
 ```
 
-The rate limiting is hard-coded to 5000 "totalSlotMs units" per hour.
+In this example, the rate limiting is hard-coded to 5000 "totalSlotMs units" per
+hour.  This is probably something you would want to configure in the API
+Product, or in the App, or on the Developer entity.  This is pretty standard
+practice with Apigee.
 
 The proxy uses the `account-num` request header as the Quota identifier. When
 you invoke it, pass that header.  Any value will do:
