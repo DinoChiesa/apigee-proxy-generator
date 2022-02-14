@@ -48,7 +48,7 @@
 
   <Flows>
 
-    <!-- emit one flow for each item in the config -->
+    <!-- There is one flow for each item in the config. -->
     {{
     flows.forEach( (flow,ix) => {
       let amPolicyName = 'AM-PreparedQuery-' + (ix+1);
@@ -62,23 +62,22 @@
           "</AssignMessage>";
         fs.writeFileSync(fqPolicyFileName, content);
     }}
-
     <Flow name="{{= flow.name}}">
       <Request>
         <Step>
           <Name>Quota-Precheck</Name>
         </Step>
-        <!-- if query is parameterized, extract the fields -->
         {{
         if (flow.path.indexOf('*')>0) {
+        // the query is parameterized, extract the fields
         let evPolicyName = 'EV-PathParams-' + (ix+1),
             fqPolicyFileName = path.resolve(d, '..', 'policies', evPolicyName + '.xml');
         let c = 1;
         let pathspec = flow.path.split('\/').map( function(token) {
             return (token == '*') ? '{param' + (c++) + '}' : token;
         }).join('/');
-
-        let content = `<ExtractVariables name='${evPolicyName}'>\n` +
+        let content =
+        `<ExtractVariables name='${evPolicyName}'>\n` +
         '  <Source>request</Source>\n' +
         '  <URIPath>\n' +
         `    <Pattern ignoreCase="true">${pathspec}</Pattern>\n` +

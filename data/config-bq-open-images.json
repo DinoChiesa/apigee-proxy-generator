@@ -1,7 +1,7 @@
 {
   "proxyname" : "openimages",
   "basepath"  : "/openimages",
-  "projectId" : "infinite-chain-292422",
+  "projectId" : "{{= env.PROJECT_ID}}",
   "flows" : [
     {
       "name" : "images-by-keyword",

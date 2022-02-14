@@ -1,7 +1,8 @@
 {
   "proxyname" : "covid19",
   "basepath"  : "/covid19",
-  "projectId" : "infinite-chain-292422",
+  "projectId" : "{{= env.PROJECT_ID}}",
+  "notes" : "this exposes data from two different tables, one from NYT and one from JHU",
   "flows" : [
     {
       "name" : "current-death-counts-by-country",

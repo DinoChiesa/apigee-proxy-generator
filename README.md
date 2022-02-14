@@ -239,7 +239,7 @@ Have a look at the open-images configuration. It's quite simple:
 {
   "proxyname" : "openimages",
   "basepath"  : "/openimages",
-  "projectId" : "infinite-chain-292422",
+  "projectId" : "{{= env.PROJECT_ID}}",
   "flows" : [
     {
       "name" : "images-by-keyword",
@@ -250,9 +250,29 @@ Have a look at the open-images configuration. It's quite simple:
 }
 ```
 
-There are four top-level properties. All should be self-explanatory.
-In this configuration, there is just one element within the flows array property. It defines the
-information needed for a specific conditional flow, including the path pattern, and the query.
+There are four top-level properties. The first two are self-explanatory.
+
+The third, `projectId` takes a value which might look strange: `{{=
+env.PROJECT_ID}}`.  This is a reference to an environment variable by that
+name. At runtime, the tool will replace that notation with the value of the
+`PROJECT_ID` environment variable.
+
+The final property is `flows`. The template can refer to this array to emit a conditional flow for each element here.
+In this configuration, there is just one element within the `flows` array property. It defines the
+information needed for a specific conditional flow, including the path pattern, and the query to use.
+
+When the tool runs, it might:
+
+* emit a Conditional flow like this:
+  ```
+    <Flow name="airlines32">
+      <Condition>proxy.pathsuffix MatchesPath "/images-by-keyword/*" and request.verb = "GET"</Condition>
+      ...
+    </Flow>
+  ```
+
+* include a policy that maps the path parameter to the value {param1} that is used in the query.
+
 
 You could add more flows by inserting additional elements with distinct queries and path patterns. The other
 configurations included here have more flows.
@@ -294,14 +314,14 @@ You'll need a recent version of node and npm to run this tool.
    # set shell variables
    TOKEN=$(gcloud auth print-access-token)
    SVCACCT=bq-reader@$PROJECT.iam.gserviceaccount.com
-   ORG=whatever
    ENV=your-env
+   export PROJECT_ID=your-apigeex-org-name
 
    ## generate, import and deploy
    node ./genProxyFromTemplate.js -v \
      --token $TOKEN \
      --apigeex \
-     --org $ORG \
+     --org $PROJECT_ID \
      --env $ENV \
      --source ../templates/bq-simple-proxy-template \
      --config ../data/config-bq-flights.json \
@@ -328,7 +348,7 @@ You can generate, import, and deploy the rate-limiting proxy like this:
 node ./genProxyFromTemplate.js -v \
   --token $TOKEN \
   --apigeex \
-  --org $ORG \
+  --org $PROJECT_ID \
   --env $ENV \
   --source ../templates/bq-rate-limiting-proxy-template \
   --config ../data/config-bq-flights.json \

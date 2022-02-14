@@ -44,7 +44,7 @@
 
   <Flows>
 
-    <!-- emit one flow for each item in the config -->
+    <!-- there is one flow for each item in the config -->
     {{
     flows.forEach( (flow,ix) => {
       let amPolicyName = 'AM-PreparedQuery-' + (ix+1);
@@ -64,9 +64,9 @@
         <Step>
           <Name>VerifyAPIKey-1</Name>
         </Step>
-        <!-- if query is parameterized, extract the fields -->
         {{
         if (flow.path.indexOf('*')>0) {
+        // the query is parameterized, extract the fields
         let evPolicyName = 'EV-PathParams-' + (ix+1),
             fqPolicyFileName = path.resolve(d, '..', 'policies', evPolicyName + '.xml');
         let c = 1;

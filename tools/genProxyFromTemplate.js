@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-February-08 17:48:27>
+// last saved: <2022-February-14 14:21:32>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
@@ -23,19 +23,19 @@
 // and optionally deploy it.
 //
 
-const apigeejs   = require('apigee-edge-js'),
-      archiver   = require('archiver'),
-      lodash     = require('lodash'),
-      Getopt     = require('node-getopt'),
-      sprintf    = require('sprintf-js').sprintf,
-      tmp        = require('tmp-promise'),
-      util       = require('util'),
-      fs         = require('fs'),
-      path       = require('path'),
-      common     = apigeejs.utility,
-      apigee     = apigeejs.apigee,
-      version    = '20220125-1014',
-      getopt     = new Getopt(common.commonOptions.concat([
+const apigeejs = require('apigee-edge-js'),
+      archiver = require('archiver'),
+      lodash   = require('lodash'),
+      Getopt   = require('node-getopt'),
+      sprintf  = require('sprintf-js').sprintf,
+      tmp      = require('tmp-promise'),
+      util     = require('util'),
+      fs       = require('fs'),
+      path     = require('path'),
+      common   = apigeejs.utility,
+      apigee   = apigeejs.apigee,
+      version  = '20220214-1420',
+      getopt   = new Getopt(common.commonOptions.concat([
         ['d' , 'source=ARG', 'required. source directory for the proxy template files. This should have a child dir "apiproxy" or "sharedflowbundle"'],
         ['e' , 'env=ARG', 'optional. the Apigee environment(s) to which to deploy the asset. Separate multiple environments with a comma.'],
         ['' , 'generateonly', 'optional. tells the tooll to just generate the proxy, don\'t import or deploy.'],
@@ -142,6 +142,28 @@ function produceBundleZip(sourcePath, templateName) {
   });
 }
 
+function getConfig(filename) {
+  let rawContents = fs.readFileSync(filename, 'utf8');
+  let re1 = new RegExp('{{= env\\.([^}]+)}}', 'g');
+  let match;
+  let missingEnv = [];
+  while ((match = re1.exec(rawContents))) {
+    let envVar = match[1];
+    if ( ! process.env[envVar]) {
+      missingEnv.push(envVar);
+    }
+  }
+
+  if (missingEnv.length) {
+    throw new Error(`Your configuration refers to one or more environment undefined variables: ${JSON.stringify(missingEnv)}`);
+  }
+
+  let template = lodash.template(rawContents, {imports: {path, fs, lodash}});
+
+  let config = JSON.parse(template({ env: process.env })); // array of key/value pairs to be used later
+  return {...config, ...process.env};
+}
+
 // ========================================================
 
 console.log(
@@ -154,7 +176,7 @@ common.logWrite('start');
 
 var opt = getopt.parse(process.argv.slice(2));
 
-config = require(opt.options.config); // array of key/value pairs
+config = getConfig(opt.options.config);
 
 if ( ! config.proxyname || !config.basepath /* ... */) {
   console.log('The configuration must specify a proxyname and a basepath.');
