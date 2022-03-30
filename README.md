@@ -291,23 +291,23 @@ The [proxy generator tool](./tools/genProxyFromTemplate.js) included here does t
 
 - generates the templatized proxy, by combining a template against a specific configuration.
 
-- import & deploy the proxy, to the given organization + environment, with the specified service account.
+- optionally, imports & deploys the proxy, to the given organization + environment, with the specified service account.
 
 
-You'll need a recent version of node and npm to run this tool.
+You'll need a relatively recent version of node and npm to run this tool.
 
 1. First, Create service account
 
-   Create a service account that the proxy will "Act as" in order to query BigQuery.
+   Create a service account that the proxy will "act as", when it sends the queries to BigQuery.
    This account will need the "Big Query Job User" role in the GCP project.
-
-   You do not need to create or download a service-account key.
-   **NB**: This example works only against Apigee X, and depends on a feature particular
-   to Apigee X.
-
    You can use the [GCP cloud console UI](https://console.cloud.google.com), or
    the [gcloud command-line tool](https://cloud.google.com/sdk/gcloud), to do
    this.
+
+   You do not need to create or download a service-account key.
+
+   **NB**: This example works only against Apigee X, and depends on a feature particular
+   to Apigee X.
 
 
 2. Generate a proxy, and import & deploy it.
