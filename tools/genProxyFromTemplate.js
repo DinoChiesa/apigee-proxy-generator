@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-February-14 14:21:32>
+// last saved: <2022-March-30 15:22:26>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
@@ -68,7 +68,7 @@ const copyRecursiveSync = (src, dest, upcall) => {
           fs.readdirSync(src)
             .forEach(item =>
                      copyRecursiveSync(path.join(src, item), path.join(dest, item), upcall) );
-        } else if ( ! src.endsWith('~')) {
+        } else if ( ! src.endsWith('~') && ! src.startsWith('#')) {
           fs.copyFileSync(src, dest);
           if (upcall) { upcall(dest); }
         }
