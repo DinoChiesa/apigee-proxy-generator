@@ -177,10 +177,12 @@ path or payload at all.
 
 All the Apigee proxy would do is:
 1. verify the API key,
-2. remove the API key header,
+2. remove the API key header, inject an Authorization header containing a token good for BQ
 3. invoke the BQ Rest API with whatever verb and headers and payload the client passed to Apigee.
 
-If you want a more generic approach, then... this templating tool might be interesting to you.
+At that point you might even want to just let the client app invoke the bigquery.googleapis.com endpoint directly.
+
+But if you want a more generic approach, then... this templating tool might be interesting to you.
 
 
 ## Example Templates Included here
