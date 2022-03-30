@@ -38,7 +38,7 @@
 
   <HTTPTargetConnection>
 
-   <!-- tell Apigee to invoke this with a Google Access Token -->
+    <!-- tell Apigee to invoke this with a Google Access Token -->
     <Authentication>
       <GoogleAccessToken>
         <Scopes>
