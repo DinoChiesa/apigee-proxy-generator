@@ -14,9 +14,9 @@ the configuration or profile information.
 
 ## What Good is This?
 
-A good application of this idea is easily exposing a curated set of BigQuery queries,
-via an API Proxy, possibly protected by an application credential like an API key or an
-OAuth token.
+A good application of this idea, _but not the only application_, is easily
+exposing a curated set of BigQuery queries, via an API Proxy, possibly protected
+by an application credential like an API key or an OAuth token.
 
 For example, you could write a data file that includes a few parameterized queries, like this:
 ```json
@@ -47,11 +47,13 @@ But this approach can be useful in lots of other cases.
 
 ## Limitations
 
-Some of the templates in this repo - for example the templates that connect to
-BigQuery - take advantage of the GoogleAuthentication feature that is available
-only in Apigee X.  The basic concept can work with Apigee hybrid or Edge.
+The concept of templatized generation of Apigee proxies can work with Apigee hybrid or Edge.
 
-## Generating Proxies via Templates
+But, some of the templates in this repo - for example the templates that connect to
+BigQuery - take advantage of the GoogleAuthentication feature that is available
+only in Apigee X.
+
+## Generating Proxies via Templates, in more detail
 
 Templating in general is a useful technique. The idea is to combine a fixed set
 of data (the template) with a variable set of data (the configuration? or the
@@ -93,23 +95,29 @@ The output would be:
   ...
 ```
 
-When constructing API Proxies via templates, the template should the "boilerplate"
-function that you want to be common to all proxies. This might be verifying required input
-credentials, standard fault handling, maybe rate limiting, and so on.
+When constructing API Proxies via templates, the template should hold the "boilerplate"
+that you want to be common to all proxies. This boilerplate might include:
+- a policy to verify required input credentials
+- FaultRules for standard fault handling
+- a Quota for common rate limiting
+- policies to collect logging information
+- and so on
 
-Rather than considering a single file as the template, with Apigee, the exploded
-proxy _bundle_ can be the template, and the act of evaluating the template would
+In templating, a single string is often used as the template. Or maybe a single file.  With Apigee, we want the exploded
+proxy _bundle_ - all of its files - to act as the template. The act of evaluating the template would
 apply the data iteratively over each file in the bundle.
 
-Static placeholder replacement is handy but limited. You can't use static
-templating to construct proxies that have varying numbers of conditional
-flows. With static templating, you can't conditionally include segments of the
-template. To address that limitation, most modern templating engines have more
+Static placeholder replacement, like replacing `{{= basePath}}` with a specific value, is handy but limited. For example:
+
+- You can't use static templating to construct proxies that have varying numbers of conditional flows.
+- With static templating, you can't conditionally include segments of the template.
+
+To address that limitation, most modern templating engines have more
 dynamic capabilities.
 
-This demonstration tool uses
+The tool in this repo uses
 [nodejs](https://nodejs.org/en/) and the
-[lodash](https://lodash.com/docs/4.17.15#template) package for templating, which
+[lodash](https://lodash.com/docs/4.17.21#template) package for templating, which
 includes capabilities like looping, conditionals, and arbitrary JavaScript
 logic. This gives much more flexibility in what the template can do.
 
@@ -125,7 +133,7 @@ This is starting to get interesting!
 
 The tool in this repo that applies the template is generic. The template itself
 and the configuration that gets applied, can vary, for different purposes. There
-are a few example templates here, and a few different configurations.  But these
+are a few example templates here, and a few different configurations for data to apply to those templates.  But these
 are intended to be illustrations. You could write your own templates and your
 own configuration data, too.
 
@@ -160,7 +168,7 @@ combinations of {verb, payload, headers, path} that are supported by that
 upstream system, then you can do that with Apigee, but you don't need this
 generator tool to support that effort.
 
-It's actually much simpler.
+If you have that need, then your job is much simpler.
 
 Suppose you want to expose BigQuery to a client, and all you want to do is
 inject APIKey verificiation.  For that, you would just configure the Apigee
@@ -171,6 +179,8 @@ All the Apigee proxy would do is:
 1. verify the API key,
 2. remove the API key header,
 3. invoke the BQ Rest API with whatever verb and headers and payload the client passed to Apigee.
+
+If you want a more generic approach, then... this templating tool might be interestingto you.
 
 
 ## Example Templates Included here
@@ -211,8 +221,6 @@ There are two templates [included here](./templates):
 
    This one is a combination of #2 and #3 above: it performs API Key verification,
    and also performs rate limiting.
-
-
 
 You could create other proxy templates. The templates you create don't need to
 point to BigQuery.
