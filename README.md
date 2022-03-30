@@ -180,7 +180,7 @@ All the Apigee proxy would do is:
 2. remove the API key header,
 3. invoke the BQ Rest API with whatever verb and headers and payload the client passed to Apigee.
 
-If you want a more generic approach, then... this templating tool might be interestingto you.
+If you want a more generic approach, then... this templating tool might be interesting to you.
 
 
 ## Example Templates Included here
