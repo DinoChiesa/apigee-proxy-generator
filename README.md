@@ -12,6 +12,13 @@ of configuration data (you might call it a "profile") to the template files. The
 result is an actual proxy bundle, with all the template fields "filled in" by
 the configuration or profile information.
 
+## A Screencast Explains
+
+If you don't want to read through this entire readme, you can [watch a screencast.](https://youtu.be/WDhX02iB864)
+
+[![Watch the video](https://img.youtube.com/vi/WDhX02iB864/maxresdefault.jpg)](https://youtu.be/WDhX02iB864)
+
+
 ## What Good is This?
 
 A good application of this idea, _but not the only application_, is easily
