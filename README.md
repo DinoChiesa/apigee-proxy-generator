@@ -16,7 +16,8 @@ the configuration or profile information.
 
 If you don't want to read through this entire readme, you can [watch a screencast.](https://youtu.be/WDhX02iB864)
 
-[![Watch the video](https://img.youtube.com/vi/WDhX02iB864/maxresdefault.jpg)](https://youtu.be/WDhX02iB864)
+[![Watch the video](https://i9.ytimg.com/vi/WDhX02iB864/mq2.jpg?sqp=CLz8k5IG&rs=AOn4CLCV_jRdMyzTkDntJ50vqNV7uLR-4Q)](https://youtu.be/WDhX02iB864)
+
 
 
 ## What Good is This?
@@ -442,7 +443,7 @@ official Google product.
 
 ## Author
 
-Dino Chiesa
+Dino Chiesa   
 godino@google.com
 
 ## Bugs
