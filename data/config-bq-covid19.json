@@ -6,13 +6,13 @@
   "flows" : [
     {
       "name" : "current-death-counts-by-country",
-      "path" : "/deaths-by-country/*",
-      "query" : "SELECT * FROM [bigquery-public-data.covid19_jhu_csse.deaths] where country_region = '{param1}' and province_state is null LIMIT 1000"
+      "path" : "/deaths-by-country/{country_name}",
+      "query" : "SELECT * FROM `bigquery-public-data.covid19_jhu_csse.deaths` WHERE country_region = @country_name and province_state is NULL LIMIT 1000"
     },
     {
       "name" : "cumulative-deaths-by-us-state",
-      "path" : "/us-deaths/*",
-      "query" : "SELECT state_name, deaths FROM [bigquery-public-data.covid19_nyt.us_states] where date = '{param1}' order by deaths desc LIMIT 1000"
+      "path" : "/us-deaths/{as_of_date}",
+      "query" : "SELECT state_name, deaths FROM `bigquery-public-data.covid19_nyt.us_states` WHERE date = @as_of_date ORDER BY deaths DESC LIMIT 1000"
     }
   ]
 }

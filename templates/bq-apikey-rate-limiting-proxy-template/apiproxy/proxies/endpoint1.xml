@@ -9,7 +9,7 @@
   <FaultRules/>
   <DefaultFaultRule name="default-fault-rule">
     <Step>
-      <Name>AM-Inject-Proxy-Revision-Header</Name>
+      <Name>AM-Inject-Apigee-Source-Header</Name>
     </Step>
     <AlwaysEnforce>true</AlwaysEnforce>
   </DefaultFaultRule>
@@ -35,7 +35,7 @@
         <Name>JS-Convert-Response</Name>
       </Step>
       <Step>
-        <Name>AM-Inject-Proxy-Revision-Header</Name>
+        <Name>AM-Inject-Apigee-Source-Header</Name>
       </Step>
     </Response>
   </PostFlow>
@@ -53,14 +53,13 @@
     flows.forEach( (flow,ix) => {
       let amPolicyName = 'AM-PreparedQuery-' + (ix+1);
       let d = path.dirname(sourceFilename),
-            fqPolicyFileName = path.resolve(d, '..', 'policies', amPolicyName + '.xml');
-            content = `<AssignMessage name='${amPolicyName}'>\n` +
+          fqAssignMessagePolicyFileName = path.resolve(d, '..', 'policies', amPolicyName + '.xml');
+      let avContent1 =
           "  <AssignVariable>\n"+
           "    <Name>bq_query</Name>\n" +
           `    <Template>${flow.query}</Template>\n`+
-          "  </AssignVariable>\n" +
-          "</AssignMessage>";
-        fs.writeFileSync(fqPolicyFileName, content);
+          "  </AssignVariable>\n";
+      let avContent2 = ''; /* will optionally hold another AssignVariable */
     }}
 
     <Flow name="{{= flow.name}}">
@@ -71,36 +70,94 @@
         <Step>
           <Name>Quota-Precheck</Name>
         </Step>
-        {{
+{{
+        let pathPattern = '';
         if (flow.path.indexOf('*')>0) {
-        // the query is parameterized, extract the fields
-        let evPolicyName = 'EV-PathParams-' + (ix+1),
+          // the query is parameterized with unnamed parameters. Extract the fields.
+          // Note: There is a risk of SQL injection here.
+          pathPattern = flow.path;
+          let evPolicyName = 'EV-PathParams-' + (ix+1),
             fqPolicyFileName = path.resolve(d, '..', 'policies', evPolicyName + '.xml');
-        let c = 1;
-        let pathspec = flow.path.split('\/').map( function(token) {
-            return (token == '*') ? '{param' + (c++) + '}' : token;
-        }).join('/');
-
-        let content = `<ExtractVariables name='${evPolicyName}'>\n` +
-        '  <Source>request</Source>\n' +
-        '  <URIPath>\n' +
-        `    <Pattern ignoreCase="true">${pathspec}</Pattern>\n` +
-        '  </URIPath>\n' +
-        '  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>\n' +
-        '</ExtractVariables>\n';
-        fs.writeFileSync(fqPolicyFileName, content);
-        }}
+          let c = 1;
+          let pathspec = flow.path.split('\/').map( function(token) {
+              return (token == '*') ? '{param' + (c++) + '}' : token;
+          }).join('/');
+          let evContent = `<ExtractVariables name='${evPolicyName}'>\n` +
+              '  <Source>request</Source>\n' +
+              '  <URIPath>\n' +
+              `    <Pattern ignoreCase="true">${pathspec}</Pattern>\n` +
+              '  </URIPath>\n' +
+              '  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>\n' +
+              '</ExtractVariables>\n';
+          fs.writeFileSync(fqPolicyFileName, evContent);
+}}
         <Step>
           <Name>{{=evPolicyName}}</Name>
         </Step>
-        {{ } }}
+{{      }
+        else {
+          // the query may have named parameters. Extract them. No possibility for SQL injection here.
+          let re = new RegExp('{[_a-zA-Z][_a-zA-Z0-9]+}','g');
+          let m = flow.path.match(re);
+          if (m) {
+            pathPattern = flow.path.replaceAll(re, '*');
+            let evPolicyName = 'EV-PathParams-' + (ix+1),
+                fqEvPolicyFileName = path.resolve(d, '..', 'policies', evPolicyName + '.xml');
+            let evContent = `<ExtractVariables name='${evPolicyName}'>\n` +
+              '  <Source>request</Source>\n' +
+              '  <VariablePrefix>extracted</VariablePrefix>\n' +
+              '  <URIPath>\n' +
+              `    <Pattern ignoreCase="true">${flow.path}</Pattern>\n` +
+              '  </URIPath>\n' +
+              '  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>\n' +
+              '</ExtractVariables>\n';
+            fs.writeFileSync(fqEvPolicyFileName, evContent);
+            let queryParams = m.map( p => {
+              let name = p.slice(1,-1);
+              return {
+                parameterType : { type : "STRING" },
+                parameterValue : { value : "{" + `extracted.${name}`+ "}" },
+                name
+              };
+            });
+            if (flow['wildcard-params']) {
+              // apply wildcards on each param as necessary
+              avContent2 =
+              flow['wildcard-params'].map(param =>
+                  "  <AssignVariable>\n" +
+                  `    <Name>extracted.${param}</Name>\n` +
+                  "    <Template>%{" + `extracted.${param}` + "}%</Template>\n" +
+                  "  </AssignVariable>\n" )
+                  .join("");
+            }
+            avContent2 = avContent2 +
+              "  <AssignVariable>\n" +
+              "    <Name>query_parameters</Name>\n" +
+              "    <Value>" + JSON.stringify(queryParams, null, 2) + "</Value>\n" +
+              "  </AssignVariable>\n";
+}}
+        <Step>
+          <Name>{{=evPolicyName}}</Name>
+        </Step>
+{{
+          }
+        }
+
+        // the AssignMessage policy
+        let amContent = `<AssignMessage name='${amPolicyName}'>\n` +
+          `${avContent1}` +
+          `${avContent2}` +
+          "</AssignMessage>";
+
+        fs.writeFileSync(fqAssignMessagePolicyFileName, amContent);
+}}
         <Step>
           <Name>{{=amPolicyName}}</Name>
         </Step>
       </Request>
       <Response>
       </Response>
-      <Condition>proxy.pathsuffix MatchesPath "{{= flow.path}}" and request.verb = "GET"</Condition>
+      <Condition>proxy.pathsuffix MatchesPath "{{= pathPattern}}" and request.verb = "GET"</Condition>
     </Flow>
     {{ });    }}
 

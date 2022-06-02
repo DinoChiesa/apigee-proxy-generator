@@ -1,4 +1,4 @@
-<AssignMessage name='AM-Query'>
+<AssignMessage name='AM-SimpleQuery'>
   <AssignTo>request</AssignTo>
   <AssignVariable>
     <Name>target.copy.pathsuffix</Name>

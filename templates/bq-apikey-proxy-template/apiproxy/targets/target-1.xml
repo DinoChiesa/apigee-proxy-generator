@@ -1,9 +1,20 @@
 <TargetEndpoint name="target-1">
+  <DefaultFaultRule name="default-fault-rule">
+    <Step>
+      <Name>AM-Inject-Apigee-Source-Header</Name>
+    </Step>
+    <AlwaysEnforce>true</AlwaysEnforce>
+  </DefaultFaultRule>
   <PreFlow name="PreFlow">
     <Request>
-        <Step>
-          <Name>AM-Query</Name>
-        </Step>
+      <Step>
+        <Condition>NOT(query_parameters = null)</Condition>
+        <Name>AM-ParameterizedQuery</Name>
+      </Step>
+      <Step>
+        <Condition>query_parameters = null</Condition>
+        <Name>AM-SimpleQuery</Name>
+      </Step>
     </Request>
     <Response>
       <Step>

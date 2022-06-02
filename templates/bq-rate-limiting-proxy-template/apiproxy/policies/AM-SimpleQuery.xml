@@ -1,4 +1,4 @@
-<AssignMessage name='AM-Query'>
+<AssignMessage name='AM-SimpleQuery'>
   <AssignTo>request</AssignTo>
   <AssignVariable>
     <Name>target.copy.pathsuffix</Name>
@@ -6,9 +6,6 @@
   </AssignVariable>
   <Set>
     <Headers>
-      <!--
-      <Header name='Authorization'>Bearer {gcp_bearer_token}</Header>
-      -->
       <Header name='Accept'>application/json</Header>
     </Headers>
     <Payload contentType='application/json'>{"query": "{bq_query}"}
