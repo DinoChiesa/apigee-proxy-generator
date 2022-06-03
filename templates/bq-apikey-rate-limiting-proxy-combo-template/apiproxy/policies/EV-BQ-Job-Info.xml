@@ -1,0 +1,12 @@
+<ExtractVariables name='EV-BQ-Job-Info'>
+  <Source>response</Source>
+  <VariablePrefix>extracted</VariablePrefix>
+  <JSONPayload>
+    <Variable name='jobId'>
+      <JSONPath>$.jobReference.jobId</JSONPath>
+    </Variable>
+    <Variable name='cacheHit'>
+      <JSONPath>$.cacheHit</JSONPath>
+    </Variable>
+  </JSONPayload>
+</ExtractVariables>

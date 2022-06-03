@@ -1,0 +1,11 @@
+<Quota name='Quota-Precheck'>
+  <Identifier ref='request.header.account-num' />
+  <EnforceOnly>true</EnforceOnly>
+  <SharedName>bq-counts</SharedName>
+  <Allow count='5000'/>
+  <Interval>1</Interval>
+  <TimeUnit>hour</TimeUnit>
+  <Distributed>true</Distributed>
+  <Synchronous>false</Synchronous>
+  <PreciseAtSecondsLevel>false</PreciseAtSecondsLevel>
+</Quota>

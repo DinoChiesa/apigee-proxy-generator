@@ -1,0 +1,24 @@
+<ServiceCallout name='SC-Get-BQ-Job-Cost'>
+  <Request>
+    <Set>
+      <Verb>GET</Verb>
+    </Set>
+  </Request>
+  <Response>jobinfoResponse</Response>
+
+  <HTTPTargetConnection>
+    <!-- tell Apigee to invoke this with a Google Access Token -->
+    <Authentication>
+      <GoogleAccessToken>
+        <Scopes>
+          <Scope>https://www.googleapis.com/auth/cloud-platform</Scope>
+        </Scopes>
+      </GoogleAccessToken>
+    </Authentication>
+    <Properties>
+      <Property name='success.codes'>2xx</Property>
+    </Properties>
+    <!-- assemble the target path -->
+    <URL>https://bigquery.googleapis.com/bigquery/v2/projects/{{= projectId}}/jobs/{extracted.jobId}</URL>
+  </HTTPTargetConnection>
+</ServiceCallout>

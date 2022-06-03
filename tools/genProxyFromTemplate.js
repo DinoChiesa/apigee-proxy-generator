@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-March-30 15:22:26>
+// last saved: <2022-June-03 13:16:04>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
@@ -34,11 +34,11 @@ const apigeejs = require('apigee-edge-js'),
       path     = require('path'),
       common   = apigeejs.utility,
       apigee   = apigeejs.apigee,
-      version  = '20220214-1420',
+      version  = '20220603-1311',
       getopt   = new Getopt(common.commonOptions.concat([
         ['d' , 'source=ARG', 'required. source directory for the proxy template files. This should have a child dir "apiproxy" or "sharedflowbundle"'],
         ['e' , 'env=ARG', 'optional. the Apigee environment(s) to which to deploy the asset. Separate multiple environments with a comma.'],
-        ['' , 'generateonly', 'optional. tells the tooll to just generate the proxy, don\'t import or deploy.'],
+        ['' , 'generateonly', 'optional. tells the tool to just generate the proxy, don\'t import or deploy.'],
         ['' , 'config=ARG', 'required. the configuration data for the template.'],
         ['' , 'serviceaccount=ARG', 'required. the service account to use at deployment time.']
       ])).bindHelp();
@@ -52,7 +52,7 @@ const apigeejs = require('apigee-edge-js'),
 let config = {};
 
 /**
- * cp -R (with a hook).
+ * recursive copy, with a hook.
  * @param {string} src  The path to the thing to copy.
  * @param {string} dest The path to the new copy.
  * @param {func} upcall an optional function to call on each destination file after copy
@@ -75,10 +75,11 @@ const copyRecursiveSync = (src, dest, upcall) => {
       };
 
 /**
-This gets called once on each file, after it has been copied.
-It interprets each file as a lodash template.
+return a function that maps a file to another file - evaluating the file as a
+lodash template. The returned fn gets called once on each file, after it has
+been copied.
 **/
-const getTemplateApplier = (config) => (sourceFilename) => {
+const getTemplateTransformer = (config) => (sourceFilename) => {
         let template = lodash.template(
                            fs.readFileSync(sourceFilename, 'utf8'),
                            {imports: {path, fs, lodash, sourceFilename}});
@@ -119,13 +120,13 @@ function produceBundleZip(sourcePath, templateName) {
   let assetType = 'apiproxy';
 
   return new Promise( (resolve, reject) => {
-  let time = (new Date()).toString(),
-      tstr = time.substr(11, 4) +
-      time.substr(4, 3) + time.substr(8, 2) + 'T' +
-      time.substr(16, 8).replace(/:/g, ''),
-      archiveName = path.join('./', `${assetType}-${templateName}-${tstr}.zip`),
-      outs = fs.createWriteStream(archiveName),
-      archive = archiver('zip');
+    let time = (new Date()).toString(),
+        tstr = time.substr(11, 4) +
+        time.substr(4, 3) + time.substr(8, 2) + 'T' +
+        time.substr(16, 8).replace(/:/g, ''),
+        archiveName = path.join('./', `${assetType}-${templateName}-${tstr}.zip`),
+        outs = fs.createWriteStream(archiveName),
+        archive = archiver('zip');
 
     outs.on('close', () => resolve(archiveName));
 
@@ -155,7 +156,7 @@ function getConfig(filename) {
   }
 
   if (missingEnv.length) {
-    throw new Error(`Your configuration refers to one or more environment undefined variables: ${JSON.stringify(missingEnv)}`);
+    throw new Error(`Your configuration refers to one or more undefined environment variables: ${JSON.stringify(missingEnv)}`);
   }
 
   let template = lodash.template(rawContents, {imports: {path, fs, lodash}});
@@ -186,10 +187,10 @@ if ( ! config.proxyname || !config.basepath /* ... */) {
 
 return tmp.dir({unsafeCleanup:true, prefix: 'genproxy'})
   .then(d => {
-    // copy the template dir, and then apply the config data to the template
-    copyRecursiveSync(opt.options.source, d.path, getTemplateApplier(config));
+    // copy the template dir, and for each file, evaluate as a template with the config data
+    copyRecursiveSync(opt.options.source, d.path, getTemplateTransformer(config));
     if (opt.options.generateonly) {
-      // d.path is the path of the generated proxy
+      // d.path is the destination path of the generated proxy, the output of the template
       return produceBundleZip(d.path, path.basename(opt.options.source).replace('-template', ''))
         .then(a => common.logWrite(`generated: ${a}`));
     }

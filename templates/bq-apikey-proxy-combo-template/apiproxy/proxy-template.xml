@@ -1,0 +1,12 @@
+<APIProxy name="{{=proxyname}}">
+  <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+  <CreatedAt>1491498008040</CreatedAt>
+  <Description/>
+  <DisplayName>{{=proxyname}}</DisplayName>
+  <LastModifiedAt>1491517153495</LastModifiedAt>
+  <Policies/>
+  <Resources/>
+  <Spec/>
+  <TargetServers/>
+  <validate>false</validate>
+</APIProxy>
