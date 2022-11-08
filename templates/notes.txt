@@ -1,9 +1,0 @@
-Friday,  3 June 2022, 11:54
-
-The templates with the word "combo" in them accept data (configuration) that
-uses EITHER non-named parameters or named parameters in the queries.
-
-The implementation for non-named (positional) parameters have the potential to
-be susceptible to SQL-injection attacks. So I'd advise against using that
-approach.
-

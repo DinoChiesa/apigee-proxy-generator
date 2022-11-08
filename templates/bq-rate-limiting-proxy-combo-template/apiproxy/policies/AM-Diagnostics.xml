@@ -1,6 +1,0 @@
-<AssignMessage name='AM-Diagnostics'>
-  <AssignVariable>
-    <Name>diags</Name>
-    <Ref>jobinfoResponse.content</Ref>
-  </AssignVariable>
-</AssignMessage>

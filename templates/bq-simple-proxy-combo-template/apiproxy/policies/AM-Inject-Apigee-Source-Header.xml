@@ -1,7 +1,0 @@
-<AssignMessage name='AM-Inject-Apigee-Source-Header'>
-  <Set>
-    <Headers>
-      <Header name='api-source'>o={organization.name}; e={environment.name}; p={apiproxy.name}; r={apiproxy.revision}</Header>
-    </Headers>
-  </Set>
-</AssignMessage>
