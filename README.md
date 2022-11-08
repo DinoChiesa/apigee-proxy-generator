@@ -39,8 +39,8 @@ For example, you could write a data file that includes a few parameterized queri
     },
     {
       "name" : "airport-counts",
-      "path" : "/airports/*/counts/*",
-      "query" : "SELECT airline, count(*) AS total_count FROM [bigquery-samples.airline_ontime_data.flights] WHERE departure_airport = '{param1}' AND date = '{param2}' GROUP BY airline"
+      "path" : "/airports/{airport}/counts/{departure_date}",
+      "query" : "SELECT airline, count(*) AS total_count FROM  `bigquery-samples.airline_ontime_data.flights` WHERE departure_airport = @airport AND date = @departure_date GROUP BY airline"
     }
   ]
 }
@@ -260,8 +260,9 @@ Have a look at the open-images configuration. It's quite simple:
   "flows" : [
     {
       "name" : "images-by-keyword",
-      "path" : "/images-by-keyword/*",
-      "query" : "SELECT original_url, title FROM [bigquery-public-data.open_images.images] where title like '%{param1}%' LIMIT 50"
+      "path" : "/images-by-keyword/{keyword}",
+      "wildcard-params" : ["keyword"],
+      "query" : "SELECT original_url, title FROM `bigquery-public-data.open_images.images` where LOWER(title) LIKE @keyword LIMIT 50"
     }
   ]
 }
@@ -288,11 +289,13 @@ When the tool runs, it might:
     </Flow>
   ```
 
-* include a policy that maps the path parameter to the value {param1} that is used in the query.
+* include a policy that extracts the path parameter and applies it to the parameter `@keyword` that is used in the query.
 
 
-You could add more flows by inserting additional elements with distinct queries and path patterns. The other
-configurations included here have more flows.
+By following this pattern, you can build a REST model on top of curated queries.
+Your URL path can use more than one named parameter. And you can add more flows
+by inserting additional elements with distinct queries and path patterns. The
+other example configurations included here have more flows.
 
 ## Using the example tool
 
