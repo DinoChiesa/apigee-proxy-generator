@@ -1,5 +1,5 @@
 #! /usr/local/bin/node
-// Copyright 2017-2022 Google LLC.
+// Copyright 2017-2023 Google LLC.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// last saved: <2022-June-03 13:16:04>
+// last saved: <2023-July-13 09:38:33>
 /* jshint node:true, esversion: 9, strict: implied */
 
 // genProxyFromTemplate.js
@@ -34,13 +34,13 @@ const apigeejs = require('apigee-edge-js'),
       path     = require('path'),
       common   = apigeejs.utility,
       apigee   = apigeejs.apigee,
-      version  = '20220603-1311',
+      version  = '20230713-0935',
       getopt   = new Getopt(common.commonOptions.concat([
         ['d' , 'source=ARG', 'required. source directory for the proxy template files. This should have a child dir "apiproxy" or "sharedflowbundle"'],
         ['e' , 'env=ARG', 'optional. the Apigee environment(s) to which to deploy the asset. Separate multiple environments with a comma.'],
         ['' , 'generateonly', 'optional. tells the tool to just generate the proxy, don\'t import or deploy.'],
         ['' , 'config=ARG', 'required. the configuration data for the template.'],
-        ['' , 'serviceaccount=ARG', 'required. the service account to use at deployment time.']
+        ['' , 'serviceaccount=ARG', 'optional. the service account to use at deployment time.']
       ])).bindHelp();
 
   lodash.templateSettings = {
@@ -75,9 +75,9 @@ const copyRecursiveSync = (src, dest, upcall) => {
       };
 
 /**
-return a function that maps a file to another file - evaluating the file as a
-lodash template. The returned fn gets called once on each file, after it has
-been copied.
+* return a function that maps a file to another file - evaluating the file as a
+* lodash template. The returned fn gets called once on each file, after it has
+* been copied.
 **/
 const getTemplateTransformer = (config) => (sourceFilename) => {
         let template = lodash.template(
@@ -176,6 +176,18 @@ process.on('unhandledRejection',
 common.logWrite('start');
 
 var opt = getopt.parse(process.argv.slice(2));
+
+if ( ! opt.options.config ) {
+  console.log('Error: you must specify a configuration file.');
+  getopt.showHelp();
+  process.exit(1);
+}
+
+if ( ! opt.options.source ) {
+  console.log('Error: you must specify a template source.');
+  getopt.showHelp();
+  process.exit(1);
+}
 
 config = getConfig(opt.options.config);
 

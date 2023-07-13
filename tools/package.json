@@ -1,6 +1,6 @@
 {
   "name": "proxy-generator-tool",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "nodejs tool for generating proxies from templates",
   "main": "genProxyFromTemplate.js",
   "scripts": {
@@ -15,15 +15,15 @@
     "apigee"
   ],
   "dependencies": {
-    "apigee-edge-js": "^0.4.31",
+    "apigee-edge-js": "^0.4.33",
     "archiver": "3.0.0",
-    "lodash": "^4.17.21",
+    "lodash.template": "^4.5.0",
     "node-getopt": "git://github.com/tuxpoldo/node-getopt.git#05e498731c14b648fa332ca78d3a301c5e4be440",
     "sprintf-js": "^1.1.2",
     "tmp-promise": "^3.0.2"
   },
   "engines": {
-    "node": ">= 12.22.0",
+    "node": ">= 16.22.0",
     "npm": ">= 8.3.0"
   }
 }

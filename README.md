@@ -140,9 +140,9 @@ This is starting to get interesting!
 
 The tool in this repo that applies the template is generic. The template itself
 and the configuration that gets applied, can vary, for different purposes. There
-are a few example templates here, and a few different configurations for data to apply to those templates.  But these
-are intended to be illustrations. You could write your own templates and your
-own configuration data, too.
+are a few example templates here, and a few different configurations for data to
+apply to those templates.  But these are intended to be illustrations. You could
+write your own templates and your own configuration data, too.
 
 I hope you will be able to re-use the tool and the technique.
 
@@ -160,8 +160,10 @@ A couple reasons you'd want to write a template and "genericize" the proxy bundl
 
 2. If the people who maintain Apigee, the API platform, are different than the
    people who publish the Data APIs. The former group knows ProxyEndpoints,
-   Flows, and context variables. The latter group knows SQL and database tables
-   and views. You don't want to cross train them.
+   Flows, and context variables. The latter group might be data engineers, who
+   know SQL and database tables and views. Or they might be services developers,
+   who know their services and the paths they want to expose.  You don't want to
+   cross train these people on Apigee, just to allow them to expose APIs.
 
 In either of these cases, you might want to take the extra effort
 to employ templates for your API proxy generation.
@@ -175,7 +177,7 @@ combinations of {verb, payload, headers, path} that are supported by that
 upstream system, then you can do that with Apigee, but you don't need this
 generator tool to support that effort.
 
-If you have that need, then your job is much simpler.
+If you have that need, then your task is much simpler.
 
 Suppose you want to expose BigQuery to a client, and all you want to do is
 inject APIKey verificiation.  For that, you would just configure the Apigee
@@ -187,9 +189,12 @@ All the Apigee proxy would do is:
 2. remove the API key header, inject an Authorization header containing a token good for BQ
 3. invoke the BQ Rest API with whatever verb and headers and payload the client passed to Apigee.
 
-At that point you might even want to just let the client app invoke the bigquery.googleapis.com endpoint directly.
+It would be only slightly different from letting the client app invoke the
+bigquery.googleapis.com endpoint directly: the authentication token would be
+different.
 
-But if you want a more generic approach, then... this templating tool might be interesting to you.
+But if you want a more generic approach for building API Proxies, then... this
+templating tool might be interesting to you.
 
 
 ## Example Templates Included here
@@ -297,7 +302,7 @@ Your URL path can use more than one named parameter. And you can add more flows
 by inserting additional elements with distinct queries and path patterns. The
 other example configurations included here have more flows.
 
-## Using the example tool
+## Using the generator tool
 
 The [proxy generator tool](./tools/genProxyFromTemplate.js) included here does these things:
 
@@ -429,13 +434,36 @@ The result will be an API Proxy bundle zip.
 ## Extending This Demonstration
 
 You can build your own proxy templates. They do not need to connect to
-BigQuery. Use your imagination!
+BigQuery. Follow the examples given here.  Use your imagination!
+
+The tool will process each file in your proxy template as a lodash template. The
+logic is something like this:
+
+```
+  read in the configuration data
+  combine that with the shell environment variables
+
+  for each file in the template
+    read in the text
+    use lodash to fill evaluate that text as a template, using the config data
+    write the result of that evaluation to a temporary directory
+
+  zip up the results of all of those evaluations into a proxy bundle
+```
+
+During template evaluation, any JS in the template file can use the following
+npm imports: fs, path, lodash.
+
+For example, you can use `fs.writeFileSync()` to conditionally generate policy
+files that might need to be included into the generated proxy. There are example
+templates in this repo that do this.
+
 
 ## License
 
-This material is [Copyright 2018-2022 Google LLC](./NOTICE).
-and is licensed under the [Apache 2.0 License](LICENSE). This includes the nodejs
-code as well as the API Proxy configuration.
+This material is [Copyright 2018-2022 Google LLC](./NOTICE).  and is licensed
+under the [Apache 2.0 License](LICENSE). This includes the nodejs code as well
+as the API Proxy configuration.
 
 ## Disclaimer
 
