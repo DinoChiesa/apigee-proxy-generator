@@ -14,14 +14,14 @@ the configuration or profile information.
 
 ## A Screencast Explains
 
-If you don't want to read through this entire readme, you can [watch a screencast.](https://youtu.be/WDhX02iB864)
+You can [watch a screencast](https://youtu.be/WDhX02iB864) to hear me explain this.
 
 [![Watch the video](./images/screenshot-20220718-131203.png)](https://youtu.be/WDhX02iB864)
 
 
 ## What Good is This?
 
-A good application of this idea, _but not the only application_, is easily
+A good application of generating API proxies from templates, _but not the only application_, is easily
 exposing a curated set of BigQuery queries, via an API Proxy, possibly protected
 by an application credential like an API key or an OAuth token.
 
@@ -49,7 +49,7 @@ For example, you could write a data file that includes a few parameterized queri
 ...and then run that file through a tool, which generates an API proxy that
 exposes THOSE particular queries via an Apigee-hosted API.
 
-But this approach can be useful in lots of other cases.
+But this approach can be useful in producing any kind of API proxy, for which options can be specified in a JSON file.
 
 
 ## Limitations
@@ -122,13 +122,14 @@ Static placeholder replacement, like replacing `{{= basePath}}` with a specific 
 To address that limitation, most modern templating engines have more
 dynamic capabilities.
 
-The tool in this repo uses
-[nodejs](https://nodejs.org/en/) and the
+The tool in this repo uses [nodejs](https://nodejs.org/en/) and the
 [lodash](https://lodash.com/docs/4.17.21#template) package for templating, which
 includes capabilities like looping, conditionals, and arbitrary JavaScript
-logic. This gives much more flexibility in what the template can do.
+logic. One advantage: it offers great flexibility in what the template can
+do. One downside: to take advantage of this flexibility, you probably need to be
+handy with JavaScript.
 
-For example, a template can include logic that would:
+As an example of this flexibility, a template can include logic that would:
 
 - loop through a set of "flows" listed in the configuration data
 - emit a unique Flow element in the generated ProxyEndpoint for each one
@@ -144,7 +145,7 @@ are a few example templates here, and a few different configurations for data to
 apply to those templates.  But these are intended to be illustrations. You could
 write your own templates and your own configuration data, too.
 
-I hope you will be able to re-use the tool and the technique.
+I hope you will be able to re-use the tool and the technique, for a variety of purposes.
 
 ## Why use a Template?
 
@@ -166,7 +167,10 @@ A couple reasons you'd want to write a template and "genericize" the proxy bundl
    cross train these people on Apigee, just to allow them to expose APIs.
 
 In either of these cases, you might want to take the extra effort
-to employ templates for your API proxy generation.
+to employ templates for your API proxy generation. 
+
+In my experience, this is especially interesting in larger enterprises.
+
 
 ## When would you NOT want to use this generator?
 
@@ -461,7 +465,7 @@ templates in this repo that do this.
 
 ## License
 
-This material is [Copyright 2018-2022 Google LLC](./NOTICE).  and is licensed
+This material is [Copyright 2018-2023 Google LLC](./NOTICE).  and is licensed
 under the [Apache 2.0 License](LICENSE). This includes the nodejs code as well
 as the API Proxy configuration.
 
@@ -475,6 +479,12 @@ official Google product.
 
 Dino Chiesa   
 godino@google.com
+
+
+## Related
+
+* [Apigee Templater](https://github.com/apigee/apigee-templater)
+* [Proxy Generator](https://github.com/markitondemand/apigee-proxy-generator)
 
 ## Bugs
 
