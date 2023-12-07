@@ -64,7 +64,7 @@
           <Name>VerifyAPIKey-1</Name>
         </Step>
     {{
-        let pathPattern = '';
+        let pathPattern = flow.path;
         // the query may have named perameters. Extract them. No possibility for SQL injection here.
         let re = new RegExp('{[_a-zA-Z][_a-zA-Z0-9]+}','g');
         let m = flow.path.match(re);

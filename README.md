@@ -12,6 +12,7 @@ of configuration data (you might call it a "profile") to the template files. The
 result is an actual proxy bundle, with all the template fields "filled in" by
 the configuration or profile information.
 
+
 ## A Screencast Explains
 
 You can [watch a screencast](https://youtu.be/WDhX02iB864) to hear me explain this.
@@ -167,7 +168,7 @@ A couple reasons you'd want to write a template and "genericize" the proxy bundl
    cross train these people on Apigee, just to allow them to expose APIs.
 
 In either of these cases, you might want to take the extra effort
-to employ templates for your API proxy generation. 
+to employ templates for your API proxy generation.
 
 In my experience, this is especially interesting in larger enterprises.
 
@@ -203,7 +204,7 @@ templating tool might be interesting to you.
 
 ## Example Templates Included here
 
-There are two templates [included here](./templates):
+There are four templates [included here](./templates):
 
 1. [**BigQuery Facade Proxy**](./templates/bq-simple-proxy-template)
 
@@ -242,6 +243,11 @@ There are two templates [included here](./templates):
 
 You could create other proxy templates. The templates you create don't need to
 point to BigQuery.
+
+**NB**: These examples work only against Apigee X or hybrid; they depend on a feature particular
+to Apigee X/hybrid.
+
+
 
 ## Example Configuration Data
 
@@ -321,14 +327,37 @@ You'll need a relatively recent version of node and npm to run this tool.
 
    Create a service account that the proxy will "act as", when it sends the queries to BigQuery.
    This account will need the "Big Query Job User" role in the GCP project.
-   You can use the [GCP cloud console UI](https://console.cloud.google.com), or
+   You can use
    the [gcloud command-line tool](https://cloud.google.com/sdk/gcloud), to do
    this.
 
-   You do not need to create or download a service-account key.
+   Note: The GCP project in which the BW queries run, can be different than the
+   GCP project in which you have your Apigee X proxy.
 
-   **NB**: This example works only against Apigee X, and depends on a feature particular
-   to Apigee X.
+   ```sh
+   export PROJECT_ID=your-apigee-org
+   gcloud config set core/project $PROJECT_ID
+   SVCACCT_NAME=bq-reader101
+   SVCACCT_EMAIL=${SVCACCT_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+   gcloud iam service-accounts create "$SVCACCT_NAME"
+   ```
+
+   Add the role to the service account:
+   ```sh
+   gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
+      --member="serviceAccount:${SVCACCT_EMAIL}" \
+      --role="roles/bigquery.jobUser"
+   ```
+
+2. Grant the permission "iam.serviceAccounts.actAs" permission to yourself , for that service account:
+
+   ```sh
+   WHOAMI=$(gcloud auth list --filter=status:ACTIVE --format="value(account)")
+   echo "Applying serviceAccountUser role for $SVCACCT_EMAIL to $WHOAMI..."
+   gcloud iam service-accounts add-iam-policy-binding "$SVCACCT_EMAIL" \
+     --member="user:$WHOAMI" \
+     --role="roles/iam.serviceAccountUser"
+   ```
 
 
 2. Generate a proxy, and import & deploy it.
@@ -336,25 +365,27 @@ You'll need a relatively recent version of node and npm to run this tool.
    This shows how to generate a Data API proxy for the "flights" data from the
    "simple" BQ facade template.
 
-   ```
+   ```sh
    cd tools
    npm install
 
+   # re-set the PROJECT_ID if you wish
+   export PROJECT_ID=your-gcp-project-in-which-to-run-bq-queries
+
    # set shell variables
    TOKEN=$(gcloud auth print-access-token)
-   SVCACCT=bq-reader@$PROJECT.iam.gserviceaccount.com
-   ENV=your-env
-   export PROJECT_ID=your-apigeex-org-name
+   APIGEE_ENV=your-apigeex-environment
+   APIGEE_ORG=your-apigeex-org
 
    ## generate, import and deploy
    node ./genProxyFromTemplate.js -v \
      --token $TOKEN \
      --apigeex \
-     --org $PROJECT_ID \
-     --env $ENV \
+     --org $APIGEE_ORG \
+     --env $APIGEE_ENV \
      --source ../templates/bq-simple-proxy-template \
      --config ../data/config-bq-flights.json \
-     --serviceaccount $SVCACCT
+     --serviceaccount ${SVCACCT_EMAIL}
    ```
 
    Note: if you do not specify the `--env` option, the tool will import the
@@ -477,7 +508,7 @@ official Google product.
 
 ## Author
 
-Dino Chiesa   
+Dino Chiesa
 godino@google.com
 
 

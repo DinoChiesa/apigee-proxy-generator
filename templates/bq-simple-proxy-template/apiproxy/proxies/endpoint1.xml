@@ -57,7 +57,7 @@
     <Flow name="{{= flow.name}}">
       <Request>
 {{
-        let pathPattern = '';
+        let pathPattern = flow.path;
         // the query may have named parameters. Extract them. No possibility for SQL injection here.
         let re = new RegExp('{[_a-zA-Z][_a-zA-Z0-9]+}','g');
         let m = flow.path.match(re);
@@ -104,7 +104,6 @@
               `      <Name>${evPolicyName}</Name>\n` +
               "    </Step>\n");
         }
-
         // the AssignMessage policy
         let amContent = `<AssignMessage name='${amPolicyName}'>\n` +
           avContent1 +
