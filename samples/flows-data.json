@@ -1,0 +1,24 @@
+{
+  "proxyname" : "petstore",
+  "basepath"  : "/v1",
+  "flows" : [
+    {
+      "name" : "read-pet",
+      "path" : "/pets/{petid}",
+      "description" : "Read one Pet, by ID",
+      "verb" : "GET"
+    },
+    {
+      "name" : "list-pets",
+      "path" : "/pets",
+      "description" : "list all available Pets",
+      "verb" : "GET"
+    },
+    {
+      "name" : "create-pet",
+      "path" : "/pets",
+      "description" : "create a new pet",
+      "verb" : "POST"
+    }
+  ]
+}

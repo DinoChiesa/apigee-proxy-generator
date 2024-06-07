@@ -493,10 +493,17 @@ For example, you can use `fs.writeFileSync()` to conditionally generate policy
 files that might need to be included into the generated proxy. There are example
 templates in this repo that do this.
 
+## Iterating
+
+As you build your own templates, you may want to iteratively build and test.
+There's an additional tool included here to help you do that: [expandOneFile.js](./tools/expandOneFile.js).
+
+See the [README in the samples](./samples/README.md) directory for more information.
+
 
 ## License
 
-This material is [Copyright 2018-2023 Google LLC](./NOTICE).  and is licensed
+This material is [Copyright 2018-2024 Google LLC](./NOTICE).  and is licensed
 under the [Apache 2.0 License](LICENSE). This includes the nodejs code as well
 as the API Proxy configuration.
 
@@ -508,7 +515,7 @@ official Google product.
 
 ## Author
 
-Dino Chiesa
+Dino Chiesa  
 godino@google.com
 
 

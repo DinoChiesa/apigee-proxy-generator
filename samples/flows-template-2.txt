@@ -1,0 +1,13 @@
+  {{
+   flows.forEach( (flow,ix) => {
+  }}
+
+  <Flow name="{{= flow.name}}">
+     <Description>{{= flow.description}}</Description>
+     <Request/>
+     <Response/>
+     <Condition>(proxy.pathsuffix MatchesPath "{{= flow.path}}") and (request.verb = "{{= flow.verb}}")</Condition>
+  </Flow>
+  {{
+   });
+  }}
